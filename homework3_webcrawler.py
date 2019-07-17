@@ -96,10 +96,14 @@ class SubRedditParse:
 CollegeBasketball = SubRedditParse("https://old.reddit.com/r/CollegeBasketball/", '', 50)
 CollegeBasketball.redditCrawler()
 CollegeBasketball.getDataFrame()
+CollegeBasketball_df = CollegeBasketball.getDataFrame()
+CollegeBasketball_df.to_csv('CollegeBasketball.csv')
 
 CFB = SubRedditParse("https://old.reddit.com/r/CollegeBasketball/", '', 50)
 CFB.redditCrawler()
 CFB.getDataFrame()
+CFB_df = CFB.getDataFrame()
+CFB_df.to_csv('CFB.csv')
 
 freeFolk = SubRedditParse("https://old.reddit.com/r/freefolk/", '', 50)
 freeFolk.redditCrawler()
