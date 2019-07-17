@@ -45,6 +45,7 @@ class SubRedditParse:
                 postType = post.find("span", "linkflairlabel")['title']
                 author = post.select('a[class*="author may-blank id-"]')[0].text
                 flair = post.select("span[class^=flair]")[0].text
+                timeStamp = post.find("time", "live-timestamp").datetime
                 
                 self.postDetails.append({
                     "title" : postTitle,
@@ -52,7 +53,8 @@ class SubRedditParse:
                     "postLink": postLink,
                     "author": author,
                     "postType": postType,
-                    "flair": flair
+                    "flair": flair,
+                    "timeStamp": timeStamp,
                 })
     
     # Psudoprettyprint:
@@ -81,11 +83,15 @@ class SubRedditParse:
         dataframe = pd.DataFrame(self.postDetails)
         return dataframe
 
-rCFB = SubRedditParse("https://old.reddit.com/r/cfb/", 'controversial', 10)
-rCFB.redditCrawler()
-rCFB.getDataFrame()
-
-CollegeBasketball = SubRedditParse("https://old.reddit.com/r/CollegeBasketball/", '', 10)
+CollegeBasketball = SubRedditParse("https://old.reddit.com/r/CollegeBasketball/", '', 50)
 CollegeBasketball.redditCrawler()
 CollegeBasketball.getDataFrame()
+
+CFB = SubRedditParse("https://old.reddit.com/r/cfb/", '', 50)
+CFB.redditCrawler()
+CFB.getDataFrame()
+
+freeFolk = SubRedditParse("https://old.reddit.com/r/freefolk/", '', 50)
+freeFolk.redditCrawler()
+freeFolk.getDataFrame()
     
