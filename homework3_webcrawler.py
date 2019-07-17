@@ -13,6 +13,11 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 
+# Try out sentiment analysis with https://github.com/cjhutto/vaderSentiment
+# pip install vaderSentiment 
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+# Feel free to comment out lines 18, 55 and 56 if you don't want sentiment analysis
+
 # To Do:
 #     something breaks when you try to get two different subreddit data maybe an issue with the way we are storing postDetails?
 
@@ -46,6 +51,10 @@ class SubRedditParse:
                 author = post.select('a[class*="author may-blank id-"]')[0].text
                 flair = post.select("span[class^=flair]")[0].text
                 timeStamp = post.find("time", "live-timestamp").datetime
+
+                # get sentiment score from post title
+                analyzer = SentimentIntensityAnalyzer()
+                sentimentScore = analyzer.polarity_scores(postTitle)
                 
                 self.postDetails.append({
                     "title" : postTitle,
@@ -55,8 +64,9 @@ class SubRedditParse:
                     "postType": postType,
                     "flair": flair,
                     "timeStamp": timeStamp,
+                    "sentimentScore": sentimentScore,
                 })
-    
+
     # Psudoprettyprint:
     #            print("Title: ", postTitle)
     #            print("Source: ", postSource)
@@ -87,11 +97,12 @@ CollegeBasketball = SubRedditParse("https://old.reddit.com/r/CollegeBasketball/"
 CollegeBasketball.redditCrawler()
 CollegeBasketball.getDataFrame()
 
-CFB = SubRedditParse("https://old.reddit.com/r/cfb/", '', 50)
+CFB = SubRedditParse("https://old.reddit.com/r/CollegeBasketball/", '', 50)
 CFB.redditCrawler()
 CFB.getDataFrame()
 
 freeFolk = SubRedditParse("https://old.reddit.com/r/freefolk/", '', 50)
 freeFolk.redditCrawler()
-freeFolk.getDataFrame()
-    
+freeFolk_df = freeFolk.getDataFrame()
+
+freeFolk_df.to_csv('freeFolk.csv')
