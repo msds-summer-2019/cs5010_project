@@ -51,6 +51,8 @@ class SubRedditParse:
                 author = post.select('a[class*="author may-blank id-"]')[0].text
                 flair = post.select("span[class^=flair]")[0].text
                 timeStamp = post.find("time", "live-timestamp")['datetime']
+                timeStamp = timeStamp.replace("T", " ")
+                timeStamp = timeStamp[:-6]
 
                 # get sentiment score from post title
                 analyzer = SentimentIntensityAnalyzer()
