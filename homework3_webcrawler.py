@@ -50,7 +50,7 @@ class SubRedditParse:
                 postType = post.find("span", "linkflairlabel")['title']
                 author = post.select('a[class*="author may-blank id-"]')[0].text
                 flair = post.select("span[class^=flair]")[0].text
-                timeStamp = post.find("time", "live-timestamp").datetime
+                timeStamp = post.find("time", "live-timestamp")['datetime']
 
                 # get sentiment score from post title
                 analyzer = SentimentIntensityAnalyzer()
@@ -90,7 +90,7 @@ class SubRedditParse:
                 break
 
     def getDataFrame(self):
-        dataframe = pd.DataFrame(self.postDetails)
+        dataframe = pd.DataFrame(self.postDetails, columns=['title', 'source', 'postLink', 'author', 'postType', 'flair', 'timeStamp', 'sentimentScore'])
         return dataframe
 
 CollegeBasketball = SubRedditParse("https://old.reddit.com/r/CollegeBasketball/", '', 50)
