@@ -14,11 +14,11 @@ from bs4 import BeautifulSoup
 import pandas as pd
 
 # To Do:
-#     store scraped/parsed data into a dataframe
+#     something breaks when you try to get two different subreddit data maybe an issue with the way we are storing postDetails?
 
 
 class SubRedditParse: 
-    # fields: subreddit URL, sort-type [hot, new, top, controvercial, rising] (defaults to hot), number of desired posts
+    # fields: subreddit URL, sort-type [hot, new, top, controversial, rising] (defaults to hot), number of desired posts
     # constructor:
     def __init__(self, URL, sortType, numPosts):
         if sortType:
@@ -31,7 +31,6 @@ class SubRedditParse:
         else:
             self.numPosts = 100
         self.postDetails = [];
-        self.dataFrame = pd.DataFrame(columns=['title', 'source', 'postLink', 'author', 'postType', 'flair'])
 
     def __str__(self):
         return str(self.postDetails)
@@ -47,18 +46,14 @@ class SubRedditParse:
                 author = post.select('a[class*="author may-blank id-"]')[0].text
                 flair = post.select("span[class^=flair]")[0].text
                 
-                newPostDetails = {
+                self.postDetails.append({
                     "title" : postTitle,
                     "source": postSource,
                     "postLink": postLink,
                     "author": author,
                     "postType": postType,
                     "flair": flair
-                }
-                
-                # 60 & 61 don't work
-                self.postDetails.append(newPostDetails)
-                self.dataFrame = self.dataFrame.append(newPostDetails)
+                })
     
     # Psudoprettyprint:
     #            print("Title: ", postTitle)
@@ -82,19 +77,15 @@ class SubRedditParse:
             except:
                 break
 
-    # this doesn't work
-    def storeNprintDataFrame(self):
-#        self.dataFrame = pd.DataFrame(columns=['title', 'source', 'postLink', 'author', 'postType', 'flair'])
-        self.dataFrame = pd.DataFrame(self.postDetails)
-        print(self.dataFrame)
-#        with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
-#            print(self.dataFrame)
-    
-BiglittleLies = SubRedditParse("https://old.reddit.com/r/biglittlelies/", 'top', 10)
-BiglittleLies.redditCrawler()
-BiglittleLies.storeNprintDataFrame()
+    def getDataFrame(self):
+        dataframe = pd.DataFrame(self.postDetails)
+        return dataframe
 
-
-rCFB = SubRedditParse("https://old.reddit.com/r/CFB", 'new', 50)
+rCFB = SubRedditParse("https://old.reddit.com/r/cfb/", 'controversial', 10)
 rCFB.redditCrawler()
-rCFB.storeNprintDataFrame()
+rCFB.getDataFrame()
+
+CollegeBasketball = SubRedditParse("https://old.reddit.com/r/CollegeBasketball/", '', 10)
+CollegeBasketball.redditCrawler()
+CollegeBasketball.getDataFrame()
+    
