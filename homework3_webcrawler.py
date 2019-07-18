@@ -29,7 +29,7 @@ class SubRedditParse:
         if numPosts:
             self.numPosts = numPosts
         else:
-            self.numPosts = 100
+            self.numPosts = 100 #set default number of posts to 100
         self.postDetails = [];
 
     def __str__(self):
@@ -47,6 +47,7 @@ class SubRedditParse:
                 author = post.select('a[class*="author may-blank id-"]')[0].text
                 flair = post.select("span[class^=flair]")[0].text
                 timeStamp = post.find("time", "live-timestamp")['datetime']
+                # format time such that timestamp is convertable from UTC to desired timezone 
                 timeStamp = timeStamp.replace("T", " ")
                 timeStamp = timeStamp[:-6]
                 # Get sentiment score from post title
@@ -88,6 +89,7 @@ class SubRedditParse:
             except:
                 break
 
+    # return structured results into a dataframe
     def getDataFrame(self):
         dataframe = pd.DataFrame(self.postDetails, columns=['title', 'source', 'postLink', 'author', 'postType', 'flair', 'timeStamp', 'sentimentScore'])
         dataframe['timeStamp'] = pd.to_datetime(dataframe['timeStamp'])
@@ -98,8 +100,8 @@ class SubRedditParse:
 CFB = SubRedditParse("https://old.reddit.com/r/CFB/", '', 98)
 CFB.redditCrawler()
 cfb = CFB.getDataFrame()
-cfb.to_csv('CFB.csv')
-# Make bar chart of Post Type
+cfb.to_csv('CFB.csv')   #exports results to a csv
+# Make bar chart of frequency of Post Type
 pt = cfb['postType'].value_counts().plot(kind='bar',
                                     figsize=(14,8),
                                     title="Post Type for r/CFB - Top 100")
@@ -108,11 +110,11 @@ pt.set_ylabel("Frequency")
 
 # Obtain all flairs, split into multiple columns if there are multiple flairs, condense into one list and make that a dataframe
 flair = cfb.flair.str.split(pat= " • " , n=-1, expand=True)
-flair1 = flair[0]
-flair2 = flair[1]
+flair1 = flair[0]   #initial flair
+flair2 = flair[1]   #secondary flair - displays as None if no flair exists
 flair1.str.strip()
 flair2.str.strip()
-flairTot = flair1.append(flair2, ignore_index = True) 
+flairTot = flair1.append(flair2, ignore_index = True) #create one column with all flairs and then import that into a dataframe for anlaysis
 flairTot = pd.DataFrame(data = flairTot, columns = ['flairs'])
 
 # Make bar chart of Flairs
