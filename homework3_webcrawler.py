@@ -17,11 +17,6 @@ import pandas as pd
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 # Feel free to comment out lines 18, 55 and 56 if you don't want sentiment analysis
 
-
-# To Do:
-#     something breaks when you try to get two different subreddit data maybe an issue with the way we are storing postDetails?
-
-
 class SubRedditParse: 
     # fields: subreddit URL, sort-type [hot, new, top, controversial, rising] (defaults to hot), number of desired posts
     # constructor:
@@ -39,6 +34,7 @@ class SubRedditParse:
 
     def __str__(self):
         return str(self.postDetails)
+
     # return post details
     def getPostDetails(self, posts):
         for post in posts:
@@ -67,7 +63,7 @@ class SubRedditParse:
                     "sentimentScore": sentimentScore,
                 })
 
-    # Psudoprettyprint:
+    # Psudoprettyprint (debugging):
     #            print("Title: ", postTitle)
     #            print("Source: ", postSource)
     #            print("postLink: ", postLink)
@@ -77,9 +73,12 @@ class SubRedditParse:
     
             except:
                 continue
+
     def redditCrawler(self):
         while len(self.postDetails) <= self.numPosts:
+            # send header per reddit's api...will not work otherwise
             homepage = requests.get(self.URL, headers = {'User-agent': 'UVA DSI Bot Bob'})
+            # grab page content
             homePageSoup = BeautifulSoup(homepage.content, 'html.parser')
             homePageSoup.prettify()
             self.getPostDetails(homePageSoup.findAll("div", "top-matter"))
