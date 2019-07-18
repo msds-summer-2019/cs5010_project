@@ -12,11 +12,11 @@ Computing-ID: ar5vt
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
-
 # Try out sentiment analysis with https://github.com/cjhutto/vaderSentiment
 # pip install vaderSentiment 
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 # Feel free to comment out lines 18, 55 and 56 if you don't want sentiment analysis
+
 
 # To Do:
 #     something breaks when you try to get two different subreddit data maybe an issue with the way we are storing postDetails?
@@ -53,11 +53,9 @@ class SubRedditParse:
                 timeStamp = post.find("time", "live-timestamp")['datetime']
                 timeStamp = timeStamp.replace("T", " ")
                 timeStamp = timeStamp[:-6]
-
                 # get sentiment score from post title
                 analyzer = SentimentIntensityAnalyzer()
                 sentimentScore = analyzer.polarity_scores(postTitle)
-                
                 self.postDetails.append({
                     "title" : postTitle,
                     "source": postSource,
@@ -93,22 +91,20 @@ class SubRedditParse:
 
     def getDataFrame(self):
         dataframe = pd.DataFrame(self.postDetails, columns=['title', 'source', 'postLink', 'author', 'postType', 'flair', 'timeStamp', 'sentimentScore'])
+        dataframe['timeStamp'] = pd.to_datetime(dataframe['timeStamp'])
         return dataframe
-
-CollegeBasketball = SubRedditParse("https://old.reddit.com/r/CollegeBasketball/", '', 50)
-CollegeBasketball.redditCrawler()
-CollegeBasketball.getDataFrame()
-CollegeBasketball_df = CollegeBasketball.getDataFrame()
-CollegeBasketball_df.to_csv('CollegeBasketball.csv')
 
 CFB = SubRedditParse("https://old.reddit.com/r/CollegeBasketball/", '', 50)
 CFB.redditCrawler()
 CFB.getDataFrame()
 CFB_df = CFB.getDataFrame()
 CFB_df.to_csv('CFB.csv')
-
-freeFolk = SubRedditParse("https://old.reddit.com/r/freefolk/", '', 50)
-freeFolk.redditCrawler()
-freeFolk_df = freeFolk.getDataFrame()
-
-freeFolk_df.to_csv('freeFolk.csv')
+# Plot post frequency per hour
+CFB_timestamps = CFB_df[CFB_df.columns[6]]
+CFB_timestamps.groupby(CFB_timestamps.dt.hour).count().plot(kind="bar")
+ 
+#CollegeBasketball = SubRedditParse("https://old.reddit.com/r/CollegeBasketball/", '', 50)
+#CollegeBasketball.redditCrawler()
+#CollegeBasketball.getDataFrame()
+#CollegeBasketball_df = CollegeBasketball.getDataFrame()
+#CollegeBasketball_df.to_csv('CollegeBasketball.csv')
