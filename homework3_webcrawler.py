@@ -94,17 +94,35 @@ class SubRedditParse:
         dataframe['timeStamp'] = pd.to_datetime(dataframe['timeStamp'])
         return dataframe
 
-CFB = SubRedditParse("https://old.reddit.com/r/CollegeBasketball/", '', 50)
+
+# conduct the webscraping and put the data into a DataFrame
+CFB = SubRedditParse("https://old.reddit.com/r/CFB/", '', 98)
 CFB.redditCrawler()
-CFB.getDataFrame()
-CFB_df = CFB.getDataFrame()
-CFB_df.to_csv('CFB.csv')
+cfb = CFB.getDataFrame()
+cfb.to_csv('CFB.csv')
+#Make bar chart of Post Type
+pt = cfb['postType'].value_counts().plot(kind='bar',
+                                    figsize=(14,8),
+                                    title="Post Type for r/CFB - Top 100")
+pt.set_xlabel("Post Type")
+pt.set_ylabel("Frequency")
+
+# Obtain all flairs, split into multiple columns if there are multiple flairs, condense into one list and make that a dataframe
+flair = cfb.flair.str.split(pat= " • " , n=-1, expand=True)
+flair1 = flair[0]
+flair2 = flair[1]
+flair1.str.strip()
+flair2.str.strip()
+flairTot = flair1.append(flair2, ignore_index = True) 
+flairTot = pd.DataFrame(data = flairTot, columns = ['flairs'])
+
+#Make bar chart of Flairs
+fl = flairTot['flairs'].value_counts().plot(kind='bar',
+                                    figsize=(14,8),
+                                    title="Most Frequent Flairs on Top 100 Posts")
+fl.set_xlabel("Flair")
+fl.set_ylabel("Frequency")
+
 # Plot post frequency per hour
-CFB_timestamps = CFB_df[CFB_df.columns[6]]
+CFB_timestamps = cfb[cfb.columns[6]]
 CFB_timestamps.groupby(CFB_timestamps.dt.hour).count().plot(kind="bar")
- 
-#CollegeBasketball = SubRedditParse("https://old.reddit.com/r/CollegeBasketball/", '', 50)
-#CollegeBasketball.redditCrawler()
-#CollegeBasketball.getDataFrame()
-#CollegeBasketball_df = CollegeBasketball.getDataFrame()
-#CollegeBasketball_df.to_csv('CollegeBasketball.csv')
