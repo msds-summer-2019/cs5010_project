@@ -77,7 +77,7 @@ class SubRedditParse:
 
     def redditCrawler(self):
         while len(self.postDetails) <= self.numPosts:
-            # send header per reddit's api...will not work otherwise
+            # send header per reddit's api...will not work otherwise https://praw.readthedocs.io/en/v3.6.1/#a-few-short-examples
             homepage = requests.get(self.URL, headers = {'User-agent': 'UVA DSI Bot Bob'})
             # grab page content
             homePageSoup = BeautifulSoup(homepage.content, 'html.parser')
