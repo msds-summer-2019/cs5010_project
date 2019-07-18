@@ -4,8 +4,8 @@
 
 Homework 3: Web Crawler
 Names: Aditi Rajagopal, Bradley Katcher, Charlie Putnam
-Computing-ID: ar5vt
-
+Computing-ID: ar5vt, bk5pu, cmp2cz
+Note: Received permission from Professor Basit to work in a group of 3
 """
 
 #libaries & imports
@@ -18,7 +18,7 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 # Feel free to comment out lines 18, 55 and 56 if you don't want sentiment analysis
 
 class SubRedditParse: 
-    # fields: subreddit URL, sort-type [hot, new, top, controversial, rising] (defaults to hot), number of desired posts
+    # Fields: subreddit URL, sort-type [hot, new, top, controversial, rising] (defaults to hot), number of desired posts
     # constructor:
     def __init__(self, URL, sortType, numPosts):
         if sortType:
@@ -49,7 +49,7 @@ class SubRedditParse:
                 timeStamp = post.find("time", "live-timestamp")['datetime']
                 timeStamp = timeStamp.replace("T", " ")
                 timeStamp = timeStamp[:-6]
-                # get sentiment score from post title
+                # Get sentiment score from post title
                 analyzer = SentimentIntensityAnalyzer()
                 sentimentScore = analyzer.polarity_scores(postTitle)
                 self.postDetails.append({
@@ -63,7 +63,7 @@ class SubRedditParse:
                     "sentimentScore": sentimentScore,
                 })
 
-    # Psudoprettyprint (debugging):
+    # Psudoprettyprint (included for debugging):
     #            print("Title: ", postTitle)
     #            print("Source: ", postSource)
     #            print("postLink: ", postLink)
@@ -94,12 +94,12 @@ class SubRedditParse:
         return dataframe
 
 
-# conduct the webscraping and put the data into a DataFrame
+# Conduct the webscraping and put the data into a DataFrame
 CFB = SubRedditParse("https://old.reddit.com/r/CFB/", '', 98)
 CFB.redditCrawler()
 cfb = CFB.getDataFrame()
 cfb.to_csv('CFB.csv')
-#Make bar chart of Post Type
+# Make bar chart of Post Type
 pt = cfb['postType'].value_counts().plot(kind='bar',
                                     figsize=(14,8),
                                     title="Post Type for r/CFB - Top 100")
@@ -115,7 +115,7 @@ flair2.str.strip()
 flairTot = flair1.append(flair2, ignore_index = True) 
 flairTot = pd.DataFrame(data = flairTot, columns = ['flairs'])
 
-#Make bar chart of Flairs
+# Make bar chart of Flairs
 fl = flairTot['flairs'].value_counts().plot(kind='bar',
                                     figsize=(14,8),
                                     title="Most Frequent Flairs on Top 100 Posts")
