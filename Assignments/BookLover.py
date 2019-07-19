@@ -3,6 +3,7 @@
 In Class Assignment 7: Testing Activity
 Names: Aditi Rajagopal, Bradley Katcher, Charlie Putnam
 Computing-ID: ar5vt, bk5pu, cmp2cz
+Main Class - BookLovers
 """
 
 class BookLover:
@@ -38,11 +39,10 @@ class BookLover:
     favBooks = []
     for book in self.bookLst:
       if book[1] > 3:
-        favBooks.append(book)
+        favBooks.append(book[0])
     return favBooks
 
 user1 = BookLover('Aditi', 'artv5@virginia.edu', 'Humor')
-user1.addBook('Merchant of Venice', 3)
 user1.addBook('King Lear', 5)
 user1.addBook('Pericles', 4)
 user1.addBook('Hamlet', 3)
