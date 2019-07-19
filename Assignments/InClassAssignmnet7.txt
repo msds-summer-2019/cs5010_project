@@ -1,0 +1,13 @@
+In Class Assignment 7: Testing Activity
+Names: Aditi Rajagopal, Bradley Katcher, Charlie Putnam
+Computing-ID: ar5vt, bk5pu, cmp2cz
+Test Class - TestTheBookLovers
+
+Our test suite detected _ out of _ errors.
+
+The other group's test suite detected _ out of _ errors.
+
+Tests to run for our final project:
+1) The number of post types is equal to the number of posts scraped. 
+2) For each of the rivalry analyses that we do, ensure that all comments pertain (contain reference) to either of the schools.
+3) Test boundary ranges (i.e. extremes) of the sentiment analyses scores. 
