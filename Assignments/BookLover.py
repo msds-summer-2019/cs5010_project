@@ -11,16 +11,22 @@ class BookLover:
     self.name = name
     self.email = email
     self.favGenre = favGenre
-    if numBooks:
-      self.numBooks = numBooks
+    
+    if numBooks:    
+        self.numBooks = numBooks
     else:
-      self.numBooks = 0
-    if bookLst:
+        self.numBooks = 0
+
+    if bookLst and numBooks:
       self.bookLst = bookLst
+      self.numBooks = len([x[0] for x in bookLst])
     else:
       self.bookLst = []
+      self.numBooks = 0
+      
   def __str__(self):
     return (self.name + " has read " + str(self.bookLst))
+
   def addBook(self, bookName, rating):
     for book in self.bookLst:
       if book[0] == bookName:
@@ -28,13 +34,16 @@ class BookLover:
     self.bookLst.append([bookName, rating])
     self.numBooks+=1
     return True
+
   def hasRead(self, bookName):
     for book in self.bookLst:
       if book[0] == bookName:
         return True
     return False
+
   def numBooksRead(self):
     return self.numBooks
+
   def favBooks(self):
     favBooks = []
     for book in self.bookLst:
