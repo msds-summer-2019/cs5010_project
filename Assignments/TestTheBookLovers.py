@@ -75,6 +75,7 @@ class TestTheBookLovers(unittest.TestCase): #inherits from unittest class
         user2 = BookLover('Nathan', 'nwkarste@umich.edu', 'Sci-Fi', 2, [("Bad Omens", 4), ("Sandman", 5)])
         self.assertEqual(user2.numBooksRead(), 2)
         user1 = BookLover('Aditi', 'artv5@virginia.edu', 'Humor', 5)
+        print(str(user1.numBooks))
         self.assertEqual(user1.numBooksRead(), 5)
 
     def test_favBooks_working(self):

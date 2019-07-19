@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Jul 19 13:31:12 2019
 
-@author: cmp2c
+In Class Assignment 7: Testing Activity
+Names: Aditi Rajagopal, Bradley Katcher, Charlie Putnam
+Computing-ID: ar5vt, bk5pu, cmp2cz
+Test Class - TestTheBookLovers
 """
-
 import unittest
 from BookLover import *
 

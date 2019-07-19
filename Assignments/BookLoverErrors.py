@@ -14,7 +14,7 @@ Computing-ID: ar5vt, bk5pu, cmp2cz
 Main Class - BookLovers
 """
 
-class BookLover:
+class BookLoverErrors:
     
     #Initalize constructor with necessary attributes, making number of books and book list optional
     def __init__(self, name, email, favGenre, numBooks=None, bookLst=None):
