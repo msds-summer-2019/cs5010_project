@@ -17,7 +17,7 @@ class BookLover:
     else:
         self.numBooks = 0
 
-    if bookLst and numBooks:
+    if bookLst:
       self.bookLst = bookLst
       self.numBooks = len([x[0] for x in bookLst])
     else:
