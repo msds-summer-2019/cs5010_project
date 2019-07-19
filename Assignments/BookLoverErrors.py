@@ -36,6 +36,7 @@ class BookLover:
    
     #create a string constructor that prints out the user's name and the list of books they have read.
     def __str__(self):
+        return ''
        # return (self.name + " has read " + str(self.bookLst)) Nothing is returned when the string is called upon (Error 7)
     
     def addBook(self, bookName, rating):
