@@ -14,7 +14,7 @@ Computing-ID: ar5vt, bk5pu, cmp2cz
 Main Class - BookLovers
 """
 
-class BookLover:
+class BookLoverErrors:
     
     #Initalize constructor with necessary attributes, making number of books and book list optional
     def __init__(self, name, email, favGenre, numBooks=None, bookLst=None):
@@ -36,6 +36,7 @@ class BookLover:
    
     #create a string constructor that prints out the user's name and the list of books they have read.
     def __str__(self):
+        return ''
        # return (self.name + " has read " + str(self.bookLst)) Nothing is returned when the string is called upon (Error 7)
     
     def addBook(self, bookName, rating):
