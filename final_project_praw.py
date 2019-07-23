@@ -9,6 +9,7 @@ Notes: /r/CFB web scraper looking at rivalry data
 TO DO: clean up class, decide what to do with data....Scikit-Learn?
 """
 import praw, datetime, json
+import re
 import nltk
 import pandas as pd
 import numpy as np
@@ -28,6 +29,17 @@ class RedditPostParse:
         self.postDetails = []
         self.postDF = []
 
+# =============================================================================
+#     def clean_comments(comment_body):
+#         
+#         #remove hyperlinks:
+#         comment_body = re.sub(r'\(http\S+' ,'', comment_body)
+#     
+#         #remove brackets and parens
+#         comment_body = re.sub('\[|\]|\(|\)','', comment_body)
+#         return comment_body
+# =============================================================================
+    
     def getComments(self):
         
         # create Reddit object by passing credentials to Praw, get creds from creds.json
@@ -44,9 +56,14 @@ class RedditPostParse:
         # Iterate over all of the top-level comments on the post, get author, fliar, comment, timestamp
         # got the keys from looking json version of the website 
         # TO DO: figure out whether or not we are grabbing all the comments, or just the top-level ones (flatten tree?)
-        
         for comment in submission.comments:
             try:
+                #Clean comment bodies of hyperlinks, which can affect Vader Sentiments
+                comment.body = re.sub(r'\(http\S+' ,'', comment.body)
+            
+                #remove brackets and parens
+                comment.body  = re.sub('\[|\]|\(|\)','', comment.body)
+                
                 analyzer = SentimentIntensityAnalyzer()
                 sentimentScore = analyzer.polarity_scores(comment.body)
 
@@ -65,7 +82,7 @@ class RedditPostParse:
                 })
             except:
                 continue
-           
+          
     #cleans Flairs and creates a new column in the postDF with either flair 1, flair 2, or neither
     def clean_extractFlairValues(self):
         
@@ -85,6 +102,12 @@ class RedditPostParse:
         #Assign new column to postDF with extracted values
         self.postDF['flair_clean'] = np.select(conditions, choices, default='neither')
         
+    #Creates 4 columns from sentimentScore field: neg, neu, pos, and compound
+    def explode_sentimentScores(self):
+        self.postDF[['neg','neu','pos','compound']] = self.postDF['sentimentScore'].apply(pd.Series)
+        self.postDF.drop('sentimentScore', axis=1, inplace = True)
+
+        
     def getDataFrame(self):
         # put everything into a dataframe
         self.postDF = pd.DataFrame(self.postDetails, columns=['author', 'flair', 'comment', 'timeStamp','sentimentScore','textblobScore'])
@@ -93,9 +116,9 @@ class RedditPostParse:
         
         #Create column 'flair_clean' that extracts if the commenter has flair 1 or flair 2, or neither
         self.clean_extractFlairValues()
-        # not sure how to handle the flairs atm. do we create the dataframe based on the flairs within the class?
-#        self.flair1DF = self.postDF[self.postDF['flair'].str.contains(self.flair1, na = False)]
-#        self.flair2DF = self.postDF[self.postDF['flair'].str.contains(self.flair2, na = False)]
+        
+        #Creates 4 columns, one for each key in sentimentScore dict
+        self.explode_sentimentScores()
         
         return self.postDF
 
@@ -103,9 +126,12 @@ uofm_osu_firsthalf = RedditPostParse("https://www.reddit.com/r/CFB/comments/9zzk
 uofm_osu_firsthalf.getComments()
 uofm_osu_firsthalf_df = uofm_osu_firsthalf.getDataFrame()
 
+uofm_osu_firsthalf_df.shape
+
 uofm_osu_secondhalf = RedditPostParse("https://www.reddit.com/r/CFB/comments/a018xs/game_thread_michigan_ohio_state_1200pm_et_second/", 'michigan', 'ohiostate')
 uofm_osu_secondhalf.getComments()
 uofm_osu_secondhalf_df = uofm_osu_secondhalf.getDataFrame()
+
 
 uofm_osu = pd.concat([uofm_osu_firsthalf_df, uofm_osu_secondhalf_df])
 
@@ -113,28 +139,26 @@ uofm_osu = pd.concat([uofm_osu_firsthalf_df, uofm_osu_secondhalf_df])
 #uofm_osu.groupby(pd.Grouper(key='timeStamp', freq='5min'))
 
 #convert sentiment scores to their own columns, to implement soon
-#uofm_osu['sentimentScore'].apply(pd.Series)
-
 # =============================================================================
+uofm_osu[['neg','neu','pos','compound']] = uofm_osu['sentimentScore'].apply(pd.Series)
+# 
+# uofm_osu.head()
+# 
 # sentences= ['fuck ohio',
-#             '(fuck ohio)',
-#             '[fuck ohio](https://i.imgur.com/hyIMZmw.jpg)']
+#             '[fuck ohio]',
+#             '[fuck ohio] (https://i.imgur.com/hyIMZmw.jpg) text text fdsafds']
 # 
 # analyzer = SentimentIntensityAnalyzer()
 # for sentence in sentences:
 #     vs = analyzer.polarity_scores(sentence)
 #     print("{:-<65} {}".format(sentence, str(vs)))
-# =============================================================================
-
-# =============================================================================
 # 
-# uofm_osu['flair'] = uofm_osu['flair'].apply(lambda x: '' if x is None else x)
-#         
-# uofm_osu['flair'].apply(lambda x: ''.join([d for d in x if not d.isdigit()]))
+# #remove hyperlinks:
+#     re.sub(r'\(http\S+' ,'', sentences[2])
+#     
+# #remove brackets and parens
+#     re.sub('\[|\]|\(|\)','',sentences[2])
 # 
-# test_string = 'ohiostate2'
-# 
-# result = ''.join([d for d in test_string if not d.isdigit()])
 # =============================================================================
 
 uofm_osu.to_csv('uofm_osu.csv') #exports results to a csv
