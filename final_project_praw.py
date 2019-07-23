@@ -79,7 +79,7 @@ class RedditPostParse:
                     "timeStamp": datetime.datetime.fromtimestamp(comment.created_utc),
                     "sentimentScore": sentimentScore,
                     "textblobScore": blobScore,
-                    "votes", comment.score
+                    "votes": comment.score
                 })
             except:
                 continue
