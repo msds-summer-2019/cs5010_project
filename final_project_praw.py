@@ -76,10 +76,10 @@ class RedditPostParse:
                     "author" : comment.author,
                     "flair": comment.author_flair_text,
                     "comment": comment.body,
-                    "votes": comment.score,
                     "timeStamp": datetime.datetime.fromtimestamp(comment.created_utc),
                     "sentimentScore": sentimentScore,
                     "textblobScore": blobScore,
+                    "votes", comment.score
                 })
             except:
                 continue
@@ -111,7 +111,7 @@ class RedditPostParse:
         
     def getDataFrame(self):
         # put everything into a dataframe
-        self.postDF = pd.DataFrame(self.postDetails, columns=['author', 'flair', 'comment', 'votes', 'timeStamp','sentimentScore','textblobScore'])
+        self.postDF = pd.DataFrame(self.postDetails, columns=['author', 'flair', 'comment', 'timeStamp','sentimentScore','textblobScore','votes'])
         self.postDF['timeStamp'] = pd.to_datetime(self.postDF['timeStamp'])
         self.postDF = self.postDF.sort_values(by='timeStamp',ascending=True)
         
@@ -126,8 +126,6 @@ class RedditPostParse:
 uofm_osu_firsthalf = RedditPostParse("https://www.reddit.com/r/CFB/comments/9zzk5n/game_thread_michigan_ohio_state_1200pm_et/", 'michigan', 'ohiostate')
 uofm_osu_firsthalf.getComments()
 uofm_osu_firsthalf_df = uofm_osu_firsthalf.getDataFrame()
-
-uofm_osu_firsthalf_df.shape
 
 uofm_osu_secondhalf = RedditPostParse("https://www.reddit.com/r/CFB/comments/a018xs/game_thread_michigan_ohio_state_1200pm_et_second/", 'michigan', 'ohiostate')
 uofm_osu_secondhalf.getComments()
