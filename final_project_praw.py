@@ -139,7 +139,7 @@ uofm_osu = pd.concat([uofm_osu_firsthalf_df, uofm_osu_secondhalf_df])
 
 #convert sentiment scores to their own columns, to implement soon
 # =============================================================================
-uofm_osu[['neg','neu','pos','compound']] = uofm_osu['sentimentScore'].apply(pd.Series)
+# uofm_osu[['neg','neu','pos','compound']] = uofm_osu['sentimentScore'].apply(pd.Series)
 # 
 # uofm_osu.head()
 # 
