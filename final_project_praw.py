@@ -12,6 +12,9 @@ TO DO: clean up class, decide what to do with data....Scikit-Learn?
 import praw, datetime, json
 import pandas as pd
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+from textblob import TextBlob
+from wordcloud import WordCloud, STOPWORDS
+import matplotlib.pyplot as plt
 
 class RedditPostParse: 
 
@@ -45,19 +48,26 @@ class RedditPostParse:
             try:
                 analyzer = SentimentIntensityAnalyzer()
                 sentimentScore = analyzer.polarity_scores(comment.body)
+
+                blob = TextBlob(comment.body)
+                blobScore = []
+                for sentence in blob.sentences:
+                    blobScore.append(sentence.sentiment.polarity)
+
                 self.postDetails.append({
                     "author" : comment.author,
                     "flair": comment.author_flair_text,
                     "comment": comment.body,
                     "timeStamp": datetime.datetime.fromtimestamp(comment.created_utc),
                     "sentimentScore": sentimentScore,
+                    "textblobScore": blobScore,
                 })
             except:
                 continue
         
     def getDataFrame(self):
         # put everything into a dataframe
-        self.postDF = pd.DataFrame(self.postDetails, columns=['author', 'flair', 'comment', 'timeStamp','sentimentScore'])
+        self.postDF = pd.DataFrame(self.postDetails, columns=['author', 'flair', 'comment', 'timeStamp','sentimentScore','textblobScore'])
         self.postDF['timeStamp'] = pd.to_datetime(self.postDF['timeStamp'])
         self.postDF = self.postDF.sort_values(by='timeStamp',ascending=True)
         
@@ -81,9 +91,8 @@ uofm_osu.to_csv('uofm_osu.csv') #exports results to a csv
 
 michiganComments = uofm_osu[uofm_osu['flair'].str.contains(":michigan:", na = False)]
 osuComments = uofm_osu[uofm_osu['flair'].str.contains(":ohiostate:", na = False)]
-michiganComments.head()
-osuComments.head()
-
+#michiganComments.head()
+#osuComments.head()
 
 uofm_msu_firsthalf = RedditPostParse("https://www.reddit.com/r/CFB/comments/9puso8/game_thread_michigan_michigan_state_1200pm_et/", 'michigan', 'michiganstate')
 uofm_msu_firsthalf.getComments()
@@ -99,5 +108,23 @@ uofm_msu.to_csv('uofm_msu.csv') #exports results to a csv
 
 uofMComments = uofm_msu[uofm_msu['flair'].str.contains(":michigan:", na = False)]
 msuComments = uofm_msu[uofm_msu['flair'].str.contains(":michiganstate:", na = False)]
-uofMComments.head()
-msuComments.head()
+
+uofm_msu_comments = uofm_msu.comment.values
+
+# based on https://www.mikulskibartosz.name/word-cloud-from-a-pandas-data-frame/
+wordcloud = WordCloud(
+    width = 3000,
+    height = 2000,
+    background_color = 'black',
+    stopwords = STOPWORDS).generate(str(uofm_msu_comments))
+fig = plt.figure(
+    figsize = (40, 30),
+    facecolor = 'k',
+    edgecolor = 'k')
+plt.imshow(wordcloud, interpolation = 'bilinear')
+plt.axis('off')
+plt.tight_layout(pad=0)
+plt.show()
+
+#uofMComments.head()
+#msuComments.head()
