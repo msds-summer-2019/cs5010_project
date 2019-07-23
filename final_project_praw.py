@@ -59,6 +59,7 @@ class RedditPostParse:
                     "author" : comment.author,
                     "flair": comment.author_flair_text,
                     "comment": comment.body,
+                    "votes": comment.score,
                     "timeStamp": datetime.datetime.fromtimestamp(comment.created_utc),
                     "sentimentScore": sentimentScore,
                     "textblobScore": blobScore,
@@ -87,7 +88,7 @@ class RedditPostParse:
         
     def getDataFrame(self):
         # put everything into a dataframe
-        self.postDF = pd.DataFrame(self.postDetails, columns=['author', 'flair', 'comment', 'timeStamp','sentimentScore','textblobScore'])
+        self.postDF = pd.DataFrame(self.postDetails, columns=['author', 'flair', 'comment', 'votes', 'timeStamp','sentimentScore','textblobScore'])
         self.postDF['timeStamp'] = pd.to_datetime(self.postDF['timeStamp'])
         self.postDF = self.postDF.sort_values(by='timeStamp',ascending=True)
         
