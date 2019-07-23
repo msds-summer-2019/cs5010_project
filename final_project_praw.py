@@ -8,9 +8,10 @@ Computing-ID: ar5vt, bk5pu, cmp2cz
 Notes: /r/CFB web scraper looking at rivalry data
 TO DO: clean up class, decide what to do with data....Scikit-Learn?
 """
-
 import praw, datetime, json
+import nltk
 import pandas as pd
+import numpy as np
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from textblob import TextBlob
 from wordcloud import WordCloud, STOPWORDS
@@ -64,6 +65,25 @@ class RedditPostParse:
                 })
             except:
                 continue
+           
+    #cleans Flairs and creates a new column in the postDF with either flair 1, flair 2, or neither
+    def clean_extractFlairValues(self):
+        
+        #convert flairs of None to empty string to make cleaner easier
+        self.postDF['flair'] = self.postDF['flair'].apply(lambda x: '' if x is None else x)
+        #remove any numbers from flairs e.g. ohiostate2 -> ohiostate
+        self.postDF['flair'] = self.postDF['flair'].apply(lambda x: ''.join([d for d in x if not d.isdigit()]))
+        
+        #if/else conditions on flair, check that the two flairs are in flair field
+        #semicolons necessary to exclude cases where 'michigan state' is a false positive for 'michigan'
+        conditions = [
+            self.postDF['flair'].str.contains(':' + self.flair1 + ':', na = False),
+            self.postDF['flair'].str.contains(':' + self.flair2 + ':', na = False)]
+        
+        choices = [self.flair1, self.flair2]
+        
+        #Assign new column to postDF with extracted values
+        self.postDF['flair_clean'] = np.select(conditions, choices, default='neither')
         
     def getDataFrame(self):
         # put everything into a dataframe
@@ -71,6 +91,8 @@ class RedditPostParse:
         self.postDF['timeStamp'] = pd.to_datetime(self.postDF['timeStamp'])
         self.postDF = self.postDF.sort_values(by='timeStamp',ascending=True)
         
+        #Create column 'flair_clean' that extracts if the commenter has flair 1 or flair 2, or neither
+        self.clean_extractFlairValues()
         # not sure how to handle the flairs atm. do we create the dataframe based on the flairs within the class?
 #        self.flair1DF = self.postDF[self.postDF['flair'].str.contains(self.flair1, na = False)]
 #        self.flair2DF = self.postDF[self.postDF['flair'].str.contains(self.flair2, na = False)]
@@ -87,12 +109,36 @@ uofm_osu_secondhalf_df = uofm_osu_secondhalf.getDataFrame()
 
 uofm_osu = pd.concat([uofm_osu_firsthalf_df, uofm_osu_secondhalf_df])
 
+#Timestamp stuff
+#uofm_osu.groupby(pd.Grouper(key='timeStamp', freq='5min'))
+
+#convert sentiment scores to their own columns, to implement soon
+#uofm_osu['sentimentScore'].apply(pd.Series)
+
+# =============================================================================
+# sentences= ['fuck ohio',
+#             '(fuck ohio)',
+#             '[fuck ohio](https://i.imgur.com/hyIMZmw.jpg)']
+# 
+# analyzer = SentimentIntensityAnalyzer()
+# for sentence in sentences:
+#     vs = analyzer.polarity_scores(sentence)
+#     print("{:-<65} {}".format(sentence, str(vs)))
+# =============================================================================
+
+# =============================================================================
+# 
+# uofm_osu['flair'] = uofm_osu['flair'].apply(lambda x: '' if x is None else x)
+#         
+# uofm_osu['flair'].apply(lambda x: ''.join([d for d in x if not d.isdigit()]))
+# 
+# test_string = 'ohiostate2'
+# 
+# result = ''.join([d for d in test_string if not d.isdigit()])
+# =============================================================================
+
 uofm_osu.to_csv('uofm_osu.csv') #exports results to a csv
 
-michiganComments = uofm_osu[uofm_osu['flair'].str.contains(":michigan:", na = False)]
-osuComments = uofm_osu[uofm_osu['flair'].str.contains(":ohiostate:", na = False)]
-#michiganComments.head()
-#osuComments.head()
 
 uofm_msu_firsthalf = RedditPostParse("https://www.reddit.com/r/CFB/comments/9puso8/game_thread_michigan_michigan_state_1200pm_et/", 'michigan', 'michiganstate')
 uofm_msu_firsthalf.getComments()
