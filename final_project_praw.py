@@ -10,25 +10,27 @@ TO DO: pull .json data from each post
 """
 
 #praw package
-import praw
+import praw, datetime
 import pandas as pd
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-import creds
+#import creds
 #separate file to store credentials for PRAW, file named creds.py
 
 
-client_id = creds.client_id
-client_secret = creds.client_secret
-user = creds.user
-password = creds.password
-user_agent = creds.user_agent
+#client_id = creds.client_id
+#client_secret = creds.client_secret
+#user = creds.user
+#password = creds.password
+#user_agent = creds.user_agent
 
 class RedditPostParse: 
 
     def __init__(self, URL, flair1, flair2):
         self.URL = URL
         self.flair1 = flair1
+        self.flair1DF = []
         self.flair2 = flair2
+        self.flair2DF = []
         self.postDetails = []
         self.postDF = []
 
@@ -52,7 +54,7 @@ class RedditPostParse:
                     "author" : comment.author,
                     "flair": comment.author_flair_text,
                     "comment": comment.body,
-                    "timeStamp": comment.created_utc,
+                    "timeStamp": datetime.datetime.fromtimestamp(comment.created_utc),
                     "sentimentScore": sentimentScore,
                 })
             except:
@@ -71,11 +73,21 @@ class RedditPostParse:
         
     def getDataFrame(self):
         self.postDF = pd.DataFrame(self.postDetails, columns=['author', 'flair', 'comment', 'timeStamp','sentimentScore'])
-        # self.postDF['timeStamp'] = pd.to_datetime(self.postDF['timeStamp'])
-        # self.postDF['timeStamp'] = pd.to_datetime(self.postDF['timeStamp'], format="%Y%m%d:%H:%M:%S.%f").sort_values()
+        self.postDF['timeStamp'] = pd.to_datetime(self.postDF['timeStamp'])
+        self.postDF = self.postDF.sort_values(by='timeStamp',ascending=True)
+        
+        self.flair1DF = self.postDF[self.postDF['flair'].str.contains(self.flair1, na = False)]
+        self.flair2DF = self.postDF[self.postDF['flair'].str.contains(self.flair2, na = False)]
+        
         return self.postDF
 
-CFB = RedditPostParse("https://www.reddit.com/r/CFB/comments/9zzk5n/", 'michigan', 'osu')
+CFB = RedditPostParse("https://www.reddit.com/r/CFB/comments/9zzk5n/", 'michigan', 'ohiostate')
 CFB.getComments()
 cfb = CFB.getDataFrame()
+
+michiganComments = CFB.flair1DF
+michiganComments.head()
+osuComments = CFB.flair2DF
+osuComments.head()
+
 cfb.to_csv('CFB.csv') #exports results to a csv
