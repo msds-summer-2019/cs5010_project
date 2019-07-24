@@ -62,7 +62,7 @@ class RedditPostParse:
                 comment.body = re.sub(r'\(http\S+' ,'', comment.body)
             
                 #remove brackets and parens
-                comment.body  = re.sub('\[|\]|\(|\)','', comment.body)
+                comment.body  = re.sub('\[|\]|\(|\)|\?','', comment.body)
                 
                 analyzer = SentimentIntensityAnalyzer()
                 sentimentScore = analyzer.polarity_scores(comment.body)
@@ -123,44 +123,40 @@ class RedditPostParse:
         
         return self.postDF
 
+#Get first half of data from thread 1
 uofm_osu_firsthalf = RedditPostParse("https://www.reddit.com/r/CFB/comments/9zzk5n/game_thread_michigan_ohio_state_1200pm_et/", 'michigan', 'ohiostate')
 uofm_osu_firsthalf.getComments()
 uofm_osu_firsthalf_df = uofm_osu_firsthalf.getDataFrame()
 
+#Get second half of data from thread 2
 uofm_osu_secondhalf = RedditPostParse("https://www.reddit.com/r/CFB/comments/a018xs/game_thread_michigan_ohio_state_1200pm_et_second/", 'michigan', 'ohiostate')
 uofm_osu_secondhalf.getComments()
 uofm_osu_secondhalf_df = uofm_osu_secondhalf.getDataFrame()
 
-
+#Concatenate dataframes together into one
 uofm_osu = pd.concat([uofm_osu_firsthalf_df, uofm_osu_secondhalf_df])
 
-#Timestamp stuff
-#uofm_osu.groupby(pd.Grouper(key='timeStamp', freq='5min'))
-
-#convert sentiment scores to their own columns, to implement soon
-# =============================================================================
-# uofm_osu[['neg','neu','pos','compound']] = uofm_osu['sentimentScore'].apply(pd.Series)
-# 
-# uofm_osu.head()
-# 
-# sentences= ['fuck ohio',
-#             '[fuck ohio]',
-#             '[fuck ohio] (https://i.imgur.com/hyIMZmw.jpg) text text fdsafds']
-# 
-# analyzer = SentimentIntensityAnalyzer()
-# for sentence in sentences:
-#     vs = analyzer.polarity_scores(sentence)
-#     print("{:-<65} {}".format(sentence, str(vs)))
-# 
-# #remove hyperlinks:
-#     re.sub(r'\(http\S+' ,'', sentences[2])
-#     
-# #remove brackets and parens
-#     re.sub('\[|\]|\(|\)','',sentences[2])
-# 
-# =============================================================================
-
+#Write result to csv
 uofm_osu.to_csv('uofm_osu.csv') #exports results to a csv
+
+#Convert author to string so we can sort later
+uofm_osu['author'] = uofm_osu['author'].astype(str)
+
+#Pivot the data to create column groups: flair1, flair2, and others
+uofm_osu = uofm_osu.pivot_table(index = ['timeStamp','author'], columns = 'flair_clean',
+               values = 'compound', aggfunc = ['count','mean'])
+
+#Collapse the multi-column index to single level
+uofm_osu.columns = uofm_osu.columns.map('|'.join).str.strip('|')
+
+#Drop author from index
+uofm_osu = uofm_osu.droplevel('author')
+
+#Resample into 5 minute bins and calculate average sentiment over that time
+uofm_osu.resample('5T').mean().to_csv('average_sentiment_over_time.csv')
+
+
+
 
 
 uofm_msu_firsthalf = RedditPostParse("https://www.reddit.com/r/CFB/comments/9puso8/game_thread_michigan_michigan_state_1200pm_et/", 'michigan', 'michiganstate')
@@ -174,6 +170,7 @@ uofm_msu_secondhalf_df = uofm_msu_secondhalf.getDataFrame()
 uofm_msu = pd.concat([uofm_msu_firsthalf_df, uofm_msu_secondhalf_df])
 
 uofm_msu.to_csv('uofm_msu.csv') #exports results to a csv
+
 
 uofMComments = uofm_msu[uofm_msu['flair'].str.contains(":michigan:", na = False)]
 msuComments = uofm_msu[uofm_msu['flair'].str.contains(":michiganstate:", na = False)]
