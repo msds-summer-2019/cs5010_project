@@ -10,6 +10,13 @@ import pandas as pd
 # import dataframe
 df = pd.read_csv('uofm_osu.csv')
 
+
+# Counts of Comments #
+df.flair_clean.value_counts()
+
+##### Raitings Graphs #########
+
+
 #define the different raitings categories
 raitings = ['neg', 'neu', 'pos', 'compound']
 
