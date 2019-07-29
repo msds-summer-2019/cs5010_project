@@ -41,5 +41,10 @@ class TestRedditPostParse(unittest.TestCase):
       commentDF = redditComments.getDataFrame()
       self.assertEqual(list(commentDF.columns), ['author', 'flair', 'comment', 'timeStamp', 'textblobScore', 'votes', 'flair_clean', 'neg', 'neu', 'pos', 'compound'])
 
+    def test_timestamp_type(self):
+      redditComments = RedditPostParse("https://www.reddit.com/r/CFB/comments/cejgo2/jim_harbaugh_is_fine_urban_meyer_isnt_going_to/", 'michigan', 'ohiostate')
+      redditComments.getComments()
+      self.assertIsInstance(type(redditComments.postDetails[0]['timeStamp']), str.__class__)
+
 if __name__ == '__main__':
     unittest.main()
