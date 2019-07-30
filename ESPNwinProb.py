@@ -3,7 +3,7 @@
 CS5010: Final Project
 Names: Aditi Rajagopal, Bradley Katcher, Charlie Putnam
 Computing-ID: ar5vt, bk5pu, cmp2cz
-Notes: Pulls win probability data from espn game webpage, and stores it in a csv
+Content: Web crawler that pulls win probability data from espn game webpage, and stores it in a csv
 TO DO: clean up the csv and do something with it
 """
 

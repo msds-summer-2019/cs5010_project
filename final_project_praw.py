@@ -5,8 +5,7 @@
 CS5010: Final Project
 Names: Aditi Rajagopal, Bradley Katcher, Charlie Putnam
 Computing-ID: ar5vt, bk5pu, cmp2cz
-Notes: /r/CFB web scraper looking at rivalry data
-TO DO: clean up class, decide what to do with data....Scikit-Learn?
+Content: /r/CFB web scraper looking at rivalry data
 """
 import praw, datetime, json
 import re
@@ -40,17 +39,18 @@ class RedditPostParse:
 #         return comment_body
 # =============================================================================
     
+    
     def getComments(self):
         
         # create Reddit object by passing credentials to Praw, get creds from creds.json
-        with open('creds.json') as config_file:
-            data = json.load(config_file)
+        #with open('creds.json') as config_file:
+        #    data = json.load(config_file)
 
-        reddit = praw.Reddit(client_id = data['client_id'],
-            client_secret = data['client_secret'],
-            username = data['user'],
-            password = data['password'],
-            user_agent = data['user_agent'])
+        reddit = praw.Reddit(client_id = "Jzm3pXTmnfuLug",
+            client_secret = "uL8tiUV8UOVkhgJBa7pqSAcDgTM",
+            username = "uva_dsi_test_dev",
+            password = "smoothtomato330",
+            user_agent = "test-app by /u/uva_dsi_test_dev")
         submission = reddit.submission(url=self.URL)
 
         # Iterate over all of the top-level comments on the post, get author, fliar, comment, timestamp
@@ -122,75 +122,3 @@ class RedditPostParse:
         self.explode_sentimentScores()
         
         return self.postDF
-
-#Get first half of data from thread 1
-uofm_osu_firsthalf = RedditPostParse("https://www.reddit.com/r/CFB/comments/9zzk5n/game_thread_michigan_ohio_state_1200pm_et/", 'michigan', 'ohiostate')
-uofm_osu_firsthalf.getComments()
-uofm_osu_firsthalf_df = uofm_osu_firsthalf.getDataFrame()
-
-#Get second half of data from thread 2
-uofm_osu_secondhalf = RedditPostParse("https://www.reddit.com/r/CFB/comments/a018xs/game_thread_michigan_ohio_state_1200pm_et_second/", 'michigan', 'ohiostate')
-uofm_osu_secondhalf.getComments()
-uofm_osu_secondhalf_df = uofm_osu_secondhalf.getDataFrame()
-
-#Concatenate dataframes together into one
-uofm_osu = pd.concat([uofm_osu_firsthalf_df, uofm_osu_secondhalf_df])
-
-#Write result to csv
-uofm_osu.to_csv('uofm_osu.csv') #exports results to a csv
-
-#Convert author to string so we can sort later
-uofm_osu['author'] = uofm_osu['author'].astype(str)
-
-#Pivot the data to create column groups: flair1, flair2, and others
-uofm_osu = uofm_osu.pivot_table(index = ['timeStamp','author'], columns = 'flair_clean',
-               values = 'compound', aggfunc = ['count','mean'])
-
-#Collapse the multi-column index to single level
-uofm_osu.columns = uofm_osu.columns.map('|'.join).str.strip('|')
-
-#Drop author from index
-uofm_osu = uofm_osu.droplevel('author')
-
-#Resample into 5 minute bins and calculate average sentiment over that time
-uofm_osu.resample('5T').mean().to_csv('average_sentiment_over_time.csv')
-
-
-
-
-
-uofm_msu_firsthalf = RedditPostParse("https://www.reddit.com/r/CFB/comments/9puso8/game_thread_michigan_michigan_state_1200pm_et/", 'michigan', 'michiganstate')
-uofm_msu_firsthalf.getComments()
-uofm_msu_firsthalf_df = uofm_msu_firsthalf.getDataFrame()
-
-uofm_msu_secondhalf = RedditPostParse("https://www.reddit.com/r/CFB/comments/9pwu6h/game_thread_michigan_michigan_state_1200pm_et/", 'michigan', 'michiganstate')
-uofm_msu_secondhalf.getComments()
-uofm_msu_secondhalf_df = uofm_msu_secondhalf.getDataFrame()
-
-uofm_msu = pd.concat([uofm_msu_firsthalf_df, uofm_msu_secondhalf_df])
-
-uofm_msu.to_csv('uofm_msu.csv') #exports results to a csv
-
-
-uofMComments = uofm_msu[uofm_msu['flair'].str.contains(":michigan:", na = False)]
-msuComments = uofm_msu[uofm_msu['flair'].str.contains(":michiganstate:", na = False)]
-
-uofm_msu_comments = uofm_msu.comment.values
-
-# based on https://www.mikulskibartosz.name/word-cloud-from-a-pandas-data-frame/
-wordcloud = WordCloud(
-    width = 3000,
-    height = 2000,
-    background_color = 'black',
-    stopwords = STOPWORDS).generate(str(uofm_msu_comments))
-fig = plt.figure(
-    figsize = (40, 30),
-    facecolor = 'k',
-    edgecolor = 'k')
-plt.imshow(wordcloud, interpolation = 'bilinear')
-plt.axis('off')
-plt.tight_layout(pad=0)
-plt.show()
-
-#uofMComments.head()
-#msuComments.head()

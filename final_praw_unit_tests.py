@@ -4,8 +4,6 @@ CS5010: Final Project
 Names: Aditi Rajagopal, Bradley Katcher, Charlie Putnam
 Computing-ID: ar5vt, bk5pu, cmp2cz
 Content: Unit Test Suite for final_project_praw.py
-Notes: Comment out code in final_project_praw.py that generates the word cloud etc before running
-TO DO: Move word cloud, df generated code from final_project_praw.py to different file, add more tests?
 """
 
 from final_project_praw import RedditPostParse
