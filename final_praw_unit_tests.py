@@ -46,5 +46,14 @@ class TestRedditPostParse(unittest.TestCase):
       redditComments.getComments()
       self.assertIsInstance(type(redditComments.postDetails[0]['timeStamp']), str.__class__)
 
+    def test_df_scoreType(self):
+      redditComments = RedditPostParse("https://www.reddit.com/r/CFB/comments/cejgo2/jim_harbaugh_is_fine_urban_meyer_isnt_going_to/", 'michigan', 'ohiostate')
+      redditComments.getComments()
+      commentDF = redditComments.getDataFrame()
+      self.assertIsInstance(type(commentDF[:]['neg']), float.__class__)
+      self.assertIsInstance(type(commentDF[:]['pos']), float.__class__)
+      self.assertIsInstance(type(commentDF[:]['neu']), float.__class__)
+      self.assertIsInstance(type(commentDF[:]['compound']), float.__class__)
+
 if __name__ == '__main__':
     unittest.main()
