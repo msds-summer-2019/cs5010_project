@@ -79,5 +79,14 @@ def timeGraph(fanbase):
     plt.ylabel('Number of Comments')
     plt.title('Number of Comments over Time: ' +str(fanbase))
 
+#graphs
+    minsGraph('ohiostate')
+    minsGraph('michigan')
+    minsGraph('all')
+    
+    timeGraph('ohiostate')
+    timeGraph('michigan')
+    timeGraph('all')
+
 
 
